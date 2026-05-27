@@ -3,11 +3,11 @@ const SPREADSHEET_ID = "1j6vW_X6ETyKQXKYv8MfV1hk2JqjZeZoQjgwGBesJ2Fc";
 const SHEETS = {
   business: {
     name: "Business Applications",
-    headers: ["Submitted At", "Business Name", "Email", "Social Page", "Goal", "Page"]
+    headers: ["Submitted At", "Business Name", "Email", "Company Website", "Goal", "Page"]
   },
   creator: {
     name: "Creator Applications",
-    headers: ["Submitted At", "Creator Name", "Email", "Social Page", "Creator Style", "Page"]
+    headers: ["Submitted At", "Creator Name", "Email", "Portfolio", "Experience", "Page"]
   }
 };
 
@@ -24,6 +24,7 @@ function doPost(event) {
   try {
     const data = JSON.parse(event.postData.contents);
     const type = data.applicationType;
+
     if (!SHEETS[type]) throw new Error("Unknown application type.");
 
     const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -31,16 +32,34 @@ function doPost(event) {
     const sheet = getOrCreateSheet(spreadsheet, sheetConfig);
 
     if (type === "business") {
-      sheet.appendRow([data.submittedAt || new Date().toISOString(), data.businessName || "", data.email || "", data.socialPage || "", data.goal || "", data.page || ""]);
+      sheet.appendRow([
+        data.submittedAt || new Date().toISOString(),
+        data.businessName || "",
+        data.email || "",
+        data.companyWebsite || "",
+        data.goal || "",
+        data.page || ""
+      ]);
     }
 
     if (type === "creator") {
-      sheet.appendRow([data.submittedAt || new Date().toISOString(), data.creatorName || "", data.email || "", data.socialPage || "", data.creatorStyle || "", data.page || ""]);
+      sheet.appendRow([
+        data.submittedAt || new Date().toISOString(),
+        data.creatorName || "",
+        data.email || "",
+        data.portfolio || "",
+        data.experience || "",
+        data.page || ""
+      ]);
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true }))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: error.message })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
   } finally {
     lock.releaseLock();
   }
@@ -48,11 +67,16 @@ function doPost(event) {
 
 function getOrCreateSheet(spreadsheet, config) {
   let sheet = spreadsheet.getSheetByName(config.name);
-  if (!sheet) sheet = spreadsheet.insertSheet(config.name);
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(config.name);
+  }
+
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(config.headers);
     sheet.setFrozenRows(1);
     sheet.getRange(1, 1, 1, config.headers.length).setFontWeight("bold");
   }
+
   return sheet;
 }

@@ -780,6 +780,7 @@ h1,h2,h3,p{margin-top:0}
   min-height:auto;
   padding-top:clamp(88px,12vh,118px);
   padding-bottom:clamp(16px,2.4vh,28px);
+  border-bottom:none;
 }
 .apply-hero h1{font-size:clamp(2rem,4.4vw,3.2rem)}
 .apply-choice-grid{
@@ -809,6 +810,38 @@ h1,h2,h3,p{margin-top:0}
 }
 
 .panel-heading h2{margin-bottom:16px;font-size:clamp(2rem,4vw,3.4rem)}
+
+/* business / creator apply — title on one side, form on the other */
+.form-split{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(30px,5vw,76px);
+  align-items:start;
+  padding:clamp(120px,16vh,170px) clamp(18px,5vw,72px) clamp(48px,8vh,96px);
+}
+.form-intro{
+  position:sticky;
+  top:104px;
+  align-self:start;
+}
+.form-intro h1{
+  margin-bottom:20px;
+  color:var(--ink);
+  font-size:clamp(2.4rem,4.4vw,4.4rem);
+  line-height:1.02;
+  letter-spacing:-.03em;
+}
+.form-intro p:not(.eyebrow){
+  max-width:520px;
+  color:var(--ink-soft);
+  font-size:clamp(1rem,1.6vw,1.15rem);
+  line-height:1.75;
+}
+.form-split .application-panel{width:100%}
+.form-split .panel-heading h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+
+/* mirror the creator page: title on the right, form on the left */
+.form-split-reverse .form-intro{order:2}
 
 .apply-form{
   display:grid;
@@ -1004,6 +1037,15 @@ footer span:first-child{color:var(--ink);font-weight:900;letter-spacing:-.01em}
   .site-nav a:after{display:none}
 
   .founder-grid,.apply-choice-grid,.application-grid,.stats-band{grid-template-columns:1fr}
+
+  /* form pages stack: title above the form on smaller screens */
+  .form-split{
+    grid-template-columns:1fr;
+    gap:clamp(22px,5vw,38px);
+    padding-top:clamp(104px,15vh,128px);
+  }
+  .form-intro{position:static;top:auto}
+  .form-split-reverse .form-intro{order:0}
 
   .hero-video-wall{padding:92px 14px 34px;gap:12px}
   .hero-video-row{gap:12px}

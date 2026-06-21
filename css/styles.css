@@ -178,8 +178,11 @@ h1,h2,h3,p{margin-top:0}
 
 .nav-toggle{
   display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   width:44px;height:44px;
-  place-items:center;
   border:1px solid var(--line);
   border-radius:12px;
   background:rgba(255,255,255,.9);
@@ -189,16 +192,16 @@ h1,h2,h3,p{margin-top:0}
 .nav-toggle:hover{background:#fff}
 
 .nav-toggle span{
-  width:18px;height:2px;
-  display:block;
-  margin:2.5px 0;
+  width:20px;height:2px;
   border-radius:2px;
   background:var(--ink);
-  transition:transform .4s var(--ease),opacity .3s var(--ease);
+  transform-origin:center;
+  transition:transform .4s var(--ease),opacity .25s var(--ease);
 }
-.nav-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(5px) rotate(45deg)}
-.nav-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
-.nav-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
+/* gap 5px + 2px bar = 7px centre-to-centre, so the outer bars meet dead centre */
+.nav-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle[aria-expanded="true"] span:nth-child(2){opacity:0;transform:scaleX(.2)}
+.nav-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
 /* =========================================================
    Hero
@@ -1040,7 +1043,7 @@ footer span:first-child{color:var(--ink);font-weight:900;letter-spacing:-.01em}
 
 /* header collapses into a menu */
 @media (max-width:900px){
-  .nav-toggle{display:grid}
+  .nav-toggle{display:flex}
 
   .site-nav{
     position:fixed;
@@ -1078,29 +1081,94 @@ footer span:first-child{color:var(--ink);font-weight:900;letter-spacing:-.01em}
   .form-intro{position:static;top:auto}
   .form-split-reverse .form-intro{order:0}
 
-  .hero-video-wall{padding:92px 14px 34px;gap:12px}
+  /* mobile hero: plain white copy, with the continuous video scroll below it */
+  .hero{
+    flex-direction:column;
+    align-items:stretch;
+    min-height:100vh;
+    min-height:100svh;
+    padding:0;
+    background:#fff;
+  }
+  .hero-copy{
+    order:1;
+    width:100%;
+    min-height:calc(100vh - 132px);
+    min-height:calc(100svh - 132px);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:96px clamp(18px,5.5vw,32px) 30px;
+  }
+  /* airy, screen-scaled rhythm between the intro pieces */
+  .hero-copy .eyebrow{margin:0 0 clamp(14px,2vh,20px)}
+  .hero-copy h1{margin:0 0 clamp(18px,2.8vh,30px);line-height:1.04}
+  .hero-copy>p:not(.eyebrow){margin:0}
+  .hero-copy .hero-actions{margin:clamp(30px,4.5vh,48px) 0 0;gap:13px}
+  .hero-overlay{display:none}
+  .hero:after{display:none}
+  .hero-video-wall{
+    order:2;
+    position:static;
+    inset:auto;
+    height:auto;
+    grid-template-rows:auto auto;
+    gap:12px;
+    padding:0 0 32px;
+    filter:none;
+  }
   .hero-video-row{gap:12px}
-  .hero-video-tile{min-height:260px}
-  .hero-overlay{background:linear-gradient(0deg,rgba(247,247,248,.95),rgba(247,247,248,.55) 60%,rgba(247,247,248,.6))}
+  .hero-video-tile{
+    width:clamp(130px,40vw,162px);
+    height:204px;
+    min-height:0;
+  }
 
   .cta-section,footer{flex-direction:column;align-items:flex-start}
   .hero .scroll-cue{display:none}
+
+  /* touch has no hover, so keep the Instagram tag visible on the founder cards */
+  .ig-cue{opacity:1;transform:none}
 }
 
 /* small tablets / large phones: remaining grids stack, tighter spacing */
 @media (max-width:680px){
   .video-grid,.service-list{grid-template-columns:1fr}
   .section{padding:clamp(56px,12vw,82px) clamp(16px,5vw,30px)}
-  .hero{padding:128px clamp(16px,5vw,30px) 56px}
   .cta-section{margin:clamp(20px,5vw,40px) clamp(16px,5vw,30px)}
 }
 
-/* phones */
+/* phones — tighter, smaller type and spacing */
 @media (max-width:560px){
-  .brand span:last-child{max-width:190px;white-space:normal;line-height:1.1}
+  .brand{font-size:.92rem}
+  .brand span:last-child{max-width:175px;white-space:normal;line-height:1.1}
+  .brand-logo{width:38px;height:38px}
+
+  .hero h1{font-size:clamp(2.2rem,11vw,3.1rem)}
+  .hero p:not(.eyebrow),.apply-hero p:not(.eyebrow),.form-hero p:not(.eyebrow),.form-intro p:not(.eyebrow){font-size:.98rem;line-height:1.6}
+  .eyebrow{font-size:.7rem;margin-bottom:12px}
+
+  .hero-actions{gap:10px;margin-top:24px}
   .hero-actions,.button{width:100%}
-  .hero h1{font-size:clamp(3rem,16vw,4.8rem)}
-  .hero-video-tile{width:64vw}
+  .button{min-height:48px;padding:12px 20px;font-size:.9rem}
+
+  .section{padding:clamp(46px,11vw,66px) clamp(16px,5vw,24px)}
+  .section-heading{margin-bottom:30px}
+  .section-heading h2,.cta-section h2,.apply-hero h1,.panel-heading h2,.form-hero h1,.form-intro h1{font-size:clamp(1.75rem,7vw,2.3rem)}
+  .section-heading p,.about-card p,.video-card p,.service-list p{font-size:.95rem}
+
+  .stats-band div{min-height:0;padding:24px}
+  .stats-band strong{font-size:1.25rem;margin-bottom:8px}
+
+  .about-card{padding:16px}
+  .about-card h3,.video-card h3,.service-list h3{font-size:1.15rem}
+  .role-label{font-size:.72rem}
+  .service-list article{min-height:0}
+  .service-list span{width:42px;height:42px;margin-bottom:22px}
+
+  .hero-video-tile{width:clamp(116px,38vw,150px);height:186px}
+
   .footer-links{gap:10px}
   footer{gap:16px}
+  .footer-brand small{font-size:.76rem}
 }

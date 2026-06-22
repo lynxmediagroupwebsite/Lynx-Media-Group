@@ -208,82 +208,30 @@ h1,h2,h3,p{margin-top:0}
    ========================================================= */
 .hero{
   position:relative;
-  min-height:100vh;
-  min-height:100svh;
   display:flex;
-  align-items:flex-end;
-  padding:150px clamp(18px,5vw,72px) 72px;
+  flex-direction:column;
+  align-items:stretch;
+  padding:0;
   overflow:hidden;
-  background:var(--surface);
+  background:#fff;
 }
 
-.hero-video-wall{
-  position:absolute;
-  inset:0;
-  display:grid;
-  grid-template-rows:1fr 1fr;
-  gap:18px;
-  padding:96px clamp(18px,5vw,72px) 42px;
-  overflow:hidden;
-}
-
-.hero-video-row{
-  display:flex;
-  gap:18px;
-  width:max-content;
-  will-change:transform;
-}
-
-.hero-video-row-left{animation:marquee 46s linear infinite}
-.hero-video-row-right{animation:marquee 46s linear infinite reverse}
-
-@keyframes marquee{
-  from{transform:translate3d(0,0,0)}
-  to{transform:translate3d(-50%,0,0)}
-}
-
-.hero-video-tile{
-  position:relative;
-  width:clamp(220px,22vw,300px);
-  height:100%;
-  min-height:300px;
-  overflow:hidden;
-  border:1px solid var(--line);
-  border-radius:var(--r);
-  background:#e9e9ec;
-  box-shadow:0 18px 50px rgba(9,9,11,.12);
-}
-
-.hero-video-tile video{
-  width:100%;height:100%;
-  display:block;
-  object-fit:cover;
-}
-
-/* readability wash over the moving video wall */
-.hero-overlay{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:
-    linear-gradient(90deg,rgba(247,247,248,.98) 0%,rgba(247,247,248,.9) 36%,rgba(247,247,248,.6) 66%,rgba(247,247,248,.32) 100%),
-    linear-gradient(0deg,rgba(247,247,248,.9) 0%,rgba(247,247,248,0) 34%),
-    radial-gradient(120% 80% at 0% 100%,rgba(247,247,248,.6),transparent 60%);
-}
-
-.hero:after{
-  content:"";
-  position:absolute;
-  left:0;right:0;bottom:0;
-  height:1px;
-  background:var(--line);
-}
-
+/* intro copy fills the upper screen; the video scroll sits just below it */
 .hero-copy{
+  order:1;
   position:relative;
-  width:min(820px,100%);
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding:clamp(104px,14vh,140px) clamp(20px,5vw,72px) clamp(16px,2.2vh,28px);
   color:var(--ink);
 }
+/* eyebrow pinned to the top, then a clear space before the big title */
+.hero-copy .eyebrow{margin:0 0 clamp(36px,10vh,112px)}
+.hero-copy h1{margin:0 0 clamp(18px,2.6vh,30px)}
+.hero-copy>p:not(.eyebrow){margin:0}
+.hero-copy .hero-actions{margin:clamp(28px,4vh,46px) 0 0}
 
 .eyebrow{
   display:inline-flex;
@@ -304,11 +252,10 @@ h1,h2,h3,p{margin-top:0}
 }
 
 .hero h1{
-  margin-bottom:24px;
-  font-size:clamp(3.4rem,9vw,8.4rem);
-  line-height:.9;
+  font-size:clamp(2.8rem,7.5vw,6.4rem);
+  line-height:1.02;
   letter-spacing:-.035em;
-  background:linear-gradient(180deg,#0a0a0b 32%,#52525b);
+  background:linear-gradient(180deg,#0a0a0b 38%,#52525b);
   -webkit-background-clip:text;
   background-clip:text;
   color:transparent;
@@ -318,14 +265,13 @@ h1,h2,h3,p{margin-top:0}
   max-width:680px;
   color:var(--ink-soft);
   font-size:clamp(1rem,2vw,1.2rem);
-  line-height:1.75;
+  line-height:1.7;
 }
 
 .hero-actions{
   display:flex;
   flex-wrap:wrap;
   gap:14px;
-  margin-top:34px;
 }
 
 /* entrance for hero copy */
@@ -334,31 +280,51 @@ h1,h2,h3,p{margin-top:0}
 .hero-copy>*:nth-child(3){animation-delay:.2s}
 .hero-copy>*:nth-child(4){animation-delay:.3s}
 
-/* scroll cue */
-.hero .scroll-cue{
-  position:absolute;
-  left:50%;bottom:26px;
-  transform:translateX(-50%);
-  width:26px;height:42px;
-  border:2px solid var(--line-strong);
-  border-radius:var(--r-pill);
-  opacity:.6;
+.hero-overlay{display:none}
+.hero:after{display:none}
+.hero .scroll-cue{display:none}
+
+/* single video scroll row below the intro (cleaner, fewer at a time) */
+.hero-video-wall{
+  order:2;
+  position:static;
+  display:grid;
+  grid-template-rows:auto;
+  padding:0 0 clamp(28px,4vw,52px);
+  overflow:hidden;
 }
-.hero .scroll-cue:before{
-  content:"";
-  position:absolute;
-  left:50%;top:8px;
-  width:4px;height:8px;
-  margin-left:-2px;
-  border-radius:2px;
-  background:var(--ink);
-  animation:scrollCue 1.7s var(--ease) infinite;
+
+.hero-video-row{
+  display:flex;
+  gap:clamp(14px,1.4vw,22px);
+  width:max-content;
+  will-change:transform;
 }
-@keyframes scrollCue{
-  0%{opacity:0;transform:translateY(0)}
-  35%{opacity:1}
-  70%{opacity:0;transform:translateY(12px)}
-  100%{opacity:0;transform:translateY(12px)}
+
+.hero-video-row-right{display:none}
+
+.hero-video-row-left{animation:marquee 46s linear infinite}
+
+@keyframes marquee{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-50%,0,0)}
+}
+
+.hero-video-tile{
+  position:relative;
+  height:clamp(300px,44vh,430px);
+  aspect-ratio:10/16;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:#e9e9ec;
+  box-shadow:0 16px 40px rgba(9,9,11,.1);
+}
+
+.hero-video-tile video{
+  width:100%;height:100%;
+  display:block;
+  object-fit:cover;
 }
 
 /* =========================================================
@@ -1081,51 +1047,13 @@ footer span:first-child{color:var(--ink);font-weight:900;letter-spacing:-.01em}
   .form-intro{position:static;top:auto}
   .form-split-reverse .form-intro{order:0}
 
-  /* mobile hero: plain white copy, with the continuous video scroll below it */
-  .hero{
-    flex-direction:column;
-    align-items:stretch;
-    min-height:100vh;
-    min-height:100svh;
-    padding:0;
-    background:#fff;
-  }
-  .hero-copy{
-    order:1;
-    width:100%;
-    min-height:calc(100vh - 132px);
-    min-height:calc(100svh - 132px);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding:96px clamp(18px,5.5vw,32px) 30px;
-  }
-  /* airy, screen-scaled rhythm between the intro pieces */
-  .hero-copy .eyebrow{margin:0 0 clamp(14px,2vh,20px)}
-  .hero-copy h1{margin:0 0 clamp(18px,2.8vh,30px);line-height:1.04}
-  .hero-copy>p:not(.eyebrow){margin:0}
-  .hero-copy .hero-actions{margin:clamp(30px,4.5vh,48px) 0 0;gap:13px}
-  .hero-overlay{display:none}
-  .hero:after{display:none}
-  .hero-video-wall{
-    order:2;
-    position:static;
-    inset:auto;
-    height:auto;
-    grid-template-rows:auto auto;
-    gap:12px;
-    padding:0 0 32px;
-    filter:none;
-  }
-  .hero-video-row{gap:12px}
-  .hero-video-tile{
-    width:clamp(130px,40vw,162px);
-    height:204px;
-    min-height:0;
-  }
+  /* mobile: tighter top spacing, single row of scroll tiles */
+  .hero-copy{padding:92px clamp(18px,5.5vw,28px) clamp(14px,2vh,24px)}
+  .hero-video-wall{padding:0 0 30px}
+  .hero-video-row{gap:14px}
+  .hero-video-tile{height:clamp(240px,34vh,310px)}
 
   .cta-section,footer{flex-direction:column;align-items:flex-start}
-  .hero .scroll-cue{display:none}
 
   /* touch has no hover, so keep the Instagram tag visible on the founder cards */
   .ig-cue{opacity:1;transform:none}
@@ -1166,7 +1094,7 @@ footer span:first-child{color:var(--ink);font-weight:900;letter-spacing:-.01em}
   .service-list article{min-height:0}
   .service-list span{width:42px;height:42px;margin-bottom:22px}
 
-  .hero-video-tile{width:clamp(116px,38vw,150px);height:186px}
+  .hero-video-tile{height:clamp(220px,30vh,272px)}
 
   .footer-links{gap:10px}
   footer{gap:16px}

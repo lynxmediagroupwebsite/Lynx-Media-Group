@@ -249,6 +249,19 @@ if (finePointer && !reduceMotion) {
     });
   });
 
+  // the two hero figures drift slightly toward the cursor
+  document.querySelectorAll(".path-figure").forEach((fig) => {
+    fig.addEventListener("pointermove", (e) => {
+      const r = fig.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width / 2) * 0.16;
+      const y = (e.clientY - r.top - r.height / 2) * 0.16;
+      fig.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    });
+    fig.addEventListener("pointerleave", () => {
+      fig.style.transform = "";
+    });
+  });
+
   // gentle 3D tilt on cards. The card AND its photo are transformed
   // together in the same frame so the image zoom can never drift out of
   // sync with the box (both start on pointerenter, same transition).
@@ -298,3 +311,15 @@ if (finePointer && !reduceMotion) {
     });
   });
 }
+
+/* =========================================================
+   Randomize each hero figure as a man or a woman on load
+   (hair is the differentiator)
+   ========================================================= */
+const FIGURE_HAIR = {
+  man: "M39 39C38 22 48 15 60 15C72 15 82 22 81 39C80 31 75 26 69 25C64 20 56 20 51 25C45 27 40 31 39 39Z",
+  woman: "M36 52C34 24 47 13 60 13C73 13 86 24 84 52C83 60 81 67 79 72L72 72C75 60 75 47 72 39C74 32 67 27 60 27C53 27 46 32 48 39C45 47 45 60 48 72L41 72C39 67 37 60 36 52Z"
+};
+document.querySelectorAll(".path-figure .hair").forEach((hair) => {
+  hair.setAttribute("d", Math.random() < 0.5 ? FIGURE_HAIR.man : FIGURE_HAIR.woman);
+});

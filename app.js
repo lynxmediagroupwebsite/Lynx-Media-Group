@@ -327,28 +327,91 @@ if (finePointer && !reduceMotion) {
 }
 
 /* =========================================================
-   Give each hero figure a random look on load — man/woman,
-   skin tone, and hair colour — for variety and inclusivity
+   Give each hero figure a random look on load — hairstyle,
+   skin tone, hair colour, and clothing colour — for variety
+   and inclusivity. The character silhouette never changes;
+   only the hair shape and fills are swapped.
    ========================================================= */
 const SKIN_TONES = ["#f7d7ba", "#efc6a3", "#e2ad84", "#cf9a6e", "#b27c54", "#925f3f", "#6f4628"];
 const HAIR_COLORS = ["#1b1916", "#2e2620", "#4a3526", "#6e4a2c", "#9a6334", "#c98a3a", "#9aa0a8", "#a6402b"];
-const HAIR_SHAPES = {
-  manTop: "M40 38C39 22 48 15 60 15C72 15 81 22 80 38C79 30 74 26 68 25C63 20 55 20 50 25C45 27 41 31 40 38Z",
-  womanTop: "M40 42C39 24 48 14 60 14C72 14 81 24 80 42C78 34 73 30 68 30C66 24 62 22 60 22C58 22 54 24 52 30C47 30 42 34 40 42Z",
-  womanBack: "M37 44C36 22 47 11 60 11C73 11 84 22 83 44C83 60 81 78 79 92L70 92C72 74 72 58 70 48C72 38 67 32 60 32C53 32 48 38 50 48C48 58 48 74 50 92L41 92C39 78 37 60 37 44Z"
-};
+
+/* A library of hairstyles. Each has a "top" (drawn over the head) and an
+   optional "back" (drawn behind the head, for longer styles). All shapes
+   stay within the head bounds so the silhouette below is untouched. */
+const LONG_BACK =
+  "M37 44C36 22 47 11 60 11C73 11 84 22 83 44C83 60 81 78 79 92L70 92C72 74 72 58 70 48C72 38 67 32 60 32C53 32 48 38 50 48C48 58 48 74 50 92L41 92C39 78 37 60 37 44Z";
+
+const HAIRSTYLES = [
+  /* side part — pronounced low hairline with a visible parting */
+  { top: "M40 38C39 20 47 12 60 12C73 12 81 20 80 38C79 29 74 26 67 26C61 26 56 27 51 26C46 27 41 31 40 38Z", part: "M52 26Q52 19 56 13" },
+  /* buzz / fade — close to the scalp */
+  { top: "M41 40C40 26 48 18 60 18C72 18 80 26 79 40C78 33 73 29 60 29C47 29 42 33 41 40Z" },
+  /* quiff — short sides, a lift at the front */
+  { top: "M40 39C40 22 47 14 60 14C73 14 80 23 80 39C79 31 73 27 67 27C66 19 61 17 57 20C54 22 53 24 52 27C46 28 41 32 40 39Z" },
+  /* short curly afro — full and rounded, but wrapped onto the head */
+  { top: "M38 42C35 18 46 10 60 10C74 10 85 18 82 42C81 32 76 28 60 28C44 28 39 32 38 42Z" },
+  /* top bun — pulled-back hair plus a knot that meets the crown */
+  { top: "M41 40C40 25 48 17 60 17C72 17 80 25 79 40C78 32 73 28 60 28C47 28 42 32 41 40Z M53 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0Z" },
+  /* wavy bob — frames the face down past the cheeks */
+  { top: "M40 44C38 24 48 14 60 14C72 14 82 24 80 44C79 36 74 31 68 31C66 25 62 23 60 23C58 23 54 25 52 31C46 31 41 36 40 44Z" },
+  /* long straight — centre part with hair behind the shoulders */
+  { top: "M40 44C39 23 48 13 60 13C72 13 81 23 80 44C79 35 74 30 68 30C66 24 62 22 60 22C58 22 54 24 52 30C46 30 41 35 40 44Z", back: LONG_BACK },
+  /* long wavy */
+  { top: "M40 44C38 22 48 13 60 13C72 13 82 22 80 44C79 34 74 30 68 30C66 24 62 22 60 22C58 22 54 24 52 30C46 30 41 34 40 44Z", back: LONG_BACK }
+];
+
+/* Clothing palettes — businesses get tailored, professional tones;
+   creators get brighter, casual streetwear colours. */
+const SUIT_COLORS = ["#333a48", "#1f2a44", "#23252b", "#3c4250", "#2c3b34", "#42323e"];
+const TIE_COLORS = ["#c44a3d", "#3b5bdb", "#2f9e44", "#9c36b5", "#1a1a1a", "#e0a33d"];
+const HOODIE_COLORS = ["#5c6470", "#e85d04", "#2563eb", "#0ea5e9", "#10b981", "#ec4899", "#8b5cf6", "#ef4444", "#1f2937"];
+
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+/* shift a hex colour lighter (pct > 0) or darker (pct < 0) */
+function shade(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v * (1 + pct))));
+  const r = clamp((n >> 16) & 255);
+  const g = clamp((n >> 8) & 255);
+  const b = clamp(n & 255);
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
 document.querySelectorAll(".path-figure").forEach((fig) => {
-  const isWoman = Math.random() < 0.5;
   const skin = pick(SKIN_TONES);
   const hairColor = pick(HAIR_COLORS);
+  const style = pick(HAIRSTYLES);
 
   fig.querySelectorAll(".skin").forEach((el) => el.setAttribute("fill", skin));
   fig.querySelectorAll(".hair, .hair-back").forEach((el) => el.setAttribute("fill", hairColor));
 
   const top = fig.querySelector(".hair");
   const back = fig.querySelector(".hair-back");
-  if (top) top.setAttribute("d", isWoman ? HAIR_SHAPES.womanTop : HAIR_SHAPES.manTop);
-  if (back) back.setAttribute("d", isWoman ? HAIR_SHAPES.womanBack : "");
+  const part = fig.querySelector(".hair-part");
+  if (top) top.setAttribute("d", style.top);
+  if (back) back.setAttribute("d", style.back || "");
+  if (part) {
+    part.setAttribute("d", style.part || "");
+    part.setAttribute("stroke", skin);
+  }
+
+  /* recolour the clothing without touching the shape: fills get the body
+     colour, strokes (e.g. the creator's raised arm) get it too */
+  const isBusiness = fig.classList.contains("business-path");
+  const clothes = pick(isBusiness ? SUIT_COLORS : HOODIE_COLORS);
+  fig.querySelectorAll(".clothes").forEach((el) => {
+    if (el.getAttribute("stroke")) el.setAttribute("stroke", clothes);
+    const fill = el.getAttribute("fill");
+    if (fill && fill !== "none") el.setAttribute("fill", clothes);
+  });
+
+  if (isBusiness) {
+    const tie = fig.querySelector(".tie");
+    if (tie) tie.setAttribute("fill", pick(TIE_COLORS));
+  } else {
+    /* the creator's inner-tee neckline reads as a darker shade of the hoodie */
+    const detail = fig.querySelector(".clothes-detail");
+    if (detail) detail.setAttribute("fill", shade(clothes, -0.28));
+  }
 });
